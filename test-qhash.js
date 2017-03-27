@@ -1,10 +1,15 @@
+/**
+ * Copyright (C) 2017 Andras Radics
+ * Licensed under the Apache License, Version 2.0
+ */
+
 'use strict';
 
 var assert = require('qassert');
 var qhash = require('./');
 
 describe ('qhash', function() {
-    describe ('_merge', function() {
+    describe ('merge', function() {
         function testMergeDataset( dataset ) {
             for (var i=0; i<dataset.length; i++) {
                 var target = dataset[i][0];
@@ -257,21 +262,23 @@ describe ('qhash', function() {
             done();
         })
 
-        it ('should not overwrite', function(done) {
-            var fn = function(){};
-            var target = qhash.decorate({fn: 1}, {fn: fn}, {noOverwrite: true});
-            assert.strictEqual(target.fn, 1);
-            done();
-        })
+        describe ('options', function() {
+            it ('should not overwrite', function(done) {
+                var fn = function(){};
+                var target = qhash.decorate({fn: 1}, {fn: fn}, {noOverwrite: true});
+                assert.strictEqual(target.fn, 1);
+                done();
+            })
 
-        it ('should hide attached methods', function(done) {
-            var fn = function(){};
-            var target = qhash.decorate({}, {fn: fn}, {hide: true});
-            assert.equal(target.fn, fn);
-            assert.deepEqual(target, {});       // <-- odd one
-            assert('fn' in target);             // <-- another odd one
-            assert.ok(Object.keys(target).indexOf('fn') < 0);
-            done();
+            it ('should hide attached methods', function(done) {
+                var fn = function(){};
+                var target = qhash.decorate({}, {fn: fn}, {hide: true});
+                assert.equal(target.fn, fn);
+                assert.deepEqual(target, {});       // <-- odd one
+                assert('fn' in target);             // <-- another odd one
+                assert.ok(Object.keys(target).indexOf('fn') < 0);
+                done();
+            })
         })
     })
 })

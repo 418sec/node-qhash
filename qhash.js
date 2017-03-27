@@ -1,8 +1,11 @@
 /**
- * default config layer
+ * Copyright (C) 2016-2017 Andras Radics
+ * Licensed under the Apache License, Version 2.0
  *
  * 2016-10-21 - AR.
  */
+
+'use strict';
 
 module.exports = {
     /*
@@ -94,6 +97,7 @@ module.exports = {
         }
         return ret;
     },
+    pluck: 'alias of selectField',
 
     decorate: function decorate( target, methods, options ) {
         if (options) {
@@ -114,20 +118,5 @@ module.exports = {
     },
 };
 
-
-/** quicktest:
-
-var config = module.exports;
-
-config.set('A', 1);
-config.set('A.B', 2);
-config.set('a.b.c.d', 3);
-
-//config.a = 1;
-config.b = {c: 1};
-
-console.log(config)
-console.log(config.get('a.b.c.d'));
-console.log(config.get('a.b'));
-
-/**/
+// aliases
+module.exports.pluck = module.exports.selectField;
