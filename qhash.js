@@ -74,6 +74,36 @@ module.exports = {
         }
         return item[path[path.length-1]] = value;
     },
+
+    selectField: function selectField( array, name ) {
+        var ret = new Array(array.length);
+        if (name.indexOf('.') < 0) {
+            for (var i=0; i<array.length; i++) {
+                ret[i] = array[i] != null ? array[i][name] : undefined;
+            }
+        } else {
+            for (var i=0; i<array.length; i++) {
+                ret[i] = module.exports.get(array[i], name);
+            }
+        }
+        return ret;
+    },
+
+    decorate: function decorate( target, methods, options ) {
+        var hide = options && options.hide;
+        var noOverwrite = options && options.noOverwrite;
+
+        for (var name in methods) {
+            if (!noOverwrite || !(name in target)) {
+                target[name] =  methods[name];
+                if (hide) {
+                    Object.defineProperty(target, name, { enumerable: false });
+                }
+            }
+        }
+
+        return target;
+    },
 };
 
 // hide _merge, get and set from casual inspection
