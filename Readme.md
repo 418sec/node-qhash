@@ -50,7 +50,7 @@ are created as necessary.  Returns the value.
 
 ### qhash.selectField( arrayOfHashes, columnName )
 
-Retrieve the named property every hash contained in the array.  Returns an array of
+Retrieve the named property from every hash in the array.  Returns an array of
 values in the same order as the hashes, with `undefined` for any unset property.
 
 
