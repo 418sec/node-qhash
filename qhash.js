@@ -24,12 +24,12 @@ module.exports = {
         for (var key in source) {
             if (noOverwrite && (key in target)) {
                 if (isHash(target[key]) && isHash(source[key])) {
-                    target[key] = _merge(target[key], source[key], true);
+                    target[key] = _merge2(target[key], source[key], true);
                 }
             }
             else if (isHash(source[key])) {
                 var writable = isHash(target[key]) ? target[key] : {};
-                target[key] = _merge(writable, source[key]);
+                target[key] = _merge2(writable, source[key]);
             }
             else {
                 target[key] = source[key];

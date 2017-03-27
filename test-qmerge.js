@@ -12,6 +12,10 @@ describe ('qhash', function() {
         it ('should not reuse any source sub-hash', function(done) {
             done();
         })
+
+        it ('should assign class-ed properties directly', function(done) {
+            done();
+        })
     })
 
     describe ('_get', function() {

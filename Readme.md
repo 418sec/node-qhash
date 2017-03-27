@@ -18,8 +18,16 @@ properties of `target` are not modified.
 
 Hashes are javascript objects that are not instanceof any class (ie, whose
 constructor is the same as the constructor of `{}`, `Object`).  Non-hash objects
-are assigned directly, so any object properties modified on the `target` will also
-be changed on `source`.
+are assigned directly, so any properties of class-ed objects modified on `target`
+will also change on `source`.
+
+    var dst = { };
+    var src = { a: {b:2}, d: new Date() };
+    qhash._merge(dst, src);
+    dst.a                               // => {b:2}
+    dst.a === src.a;                    // => false
+    assert.deepEqual(dst.a, src.a);     // => true
+    dst.d === src.d;                    // => true
 
 ### qhash.get( [source,] name )
 
@@ -46,14 +54,21 @@ values in the same order as the hashes, with `undefined` for any unset property.
 
 ### qhash.decorate( target, methods [,options] )
 
-Attach the given methods to the target object.  The `methods` argument is a name-value
-of the method names and method bodies to attach.
+Attach the given methods to the target object.  The `methods` argument is a
+name-value hash of the method names and method bodies to attach.
 
     var hash = {};
-    qhash.decorate(hash, {set: qhash.set});
+    qhash.decorate(hash, { set: qhash.set, get: qhash.get });
     hash.set === qhash.set;             // => true
 
 Options:
 
 - `hide` - make the attached methods non-enumerable.  Default `false`.
 - `override` - overwrite existing properties by the same name as the methods.  Default `false`.
+
+
+Related Work
+----------------------------------------------------------------
+
+- `util._extend()` - shallow copy `own` properties of objects
+- `Object.assign()` - shallow copy properties of objects
