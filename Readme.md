@@ -10,7 +10,6 @@ Hash and object manipulation
 Api
 ----------------------------------------------------------------
 
-
 ### qhash.merge( [target,] source [,noOverwrite] )
 
 Deep copy the properties of the `source` hash into the `target` hash.  No sub-hash
@@ -74,12 +73,14 @@ Options:
 - `hide` - make the attached methods non-enumerable.  Default `false`.
 - `noOverwrite` - do not overwrite existing properties.  Default `false`.
 
+
     var qhash = require('qhash');
     var hash = {};
     qhash.decorate(hash, { set: qhash.set, get: qhash.get });
     hash.set === qhash.set;             // => true
     hash.set('a', 1);
     hash.a === 1;                       // => true
+
 
 Related Work
 ----------------------------------------------------------------
