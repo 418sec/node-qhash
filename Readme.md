@@ -71,7 +71,8 @@ be useful for decorating container objects with hidden get/set/merge methods.
 
 Options:
 - `hide` - make the attached methods non-enumerable.  Default `false`.
-- `noOverwrite` - do not overwrite existing properties.  Default `false`.
+- `noOverwrite` - do not overwrite existing properties.
+Default `false`.
 
 
     var qhash = require('qhash');
