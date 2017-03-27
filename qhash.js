@@ -40,8 +40,7 @@ module.exports = {
 
         function isHash(o) {
             // a hash object is not instanceof any class
-            return o && typeof o === 'object' && o.constructor &&
-                o.constructor.name === 'Object';
+            return o && typeof o === 'object' && o.constructor == Object;
         }
     },
 
