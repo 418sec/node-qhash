@@ -46,7 +46,7 @@ not set.
 Set a property on the `target` hash by dotted name.  Any missing internal hashes
 are created as necessary.  Returns the `value`.
 
-It is possible to set a properto to `undefined`, which will be indinstinguishable
+It is possible to set a property to `undefined`, which will be indinstinguishable
 from an unset property.
 
     qhash.set({}, 'a', 1);              // => { a: 1 }
