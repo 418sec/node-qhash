@@ -76,12 +76,14 @@ Options:
 E.g.,
 
     var qhash = require('qhash');
-    var hash = {};
-    qhash.decorate(hash, { set: qhash.set, get: qhash.get });
+    var hash = { a: 0 };
+    qhash.decorate(hash, {set: qhash.set, get: qhash.get}, {hide: true});
     hash.set === qhash.set;             // => true
-    hash.set('a', 1);
-    hash.a === 1;                       // => true
-
+    hash.set('a', 123);
+    hash.a === 123;                     // => true
+    hash.get('a');                      // => 123
+    Object.keys(hash);                  // => [ 'a' ]
+    JSON.stringify(hash);               // '{"a":123}'
 
 Related Work
 ----------------------------------------------------------------
