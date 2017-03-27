@@ -48,10 +48,11 @@ module.exports = {
      * retrieve a configured attribute by dotted name
      */
     get: function get( target, dottedPath ) {
-        if (arguments.length < 2) return this.get(target, arguments[0]);
+        // TODO: would be more efficient to have a separate function for the `this` variant
+        if (arguments.length < 2) return this.get(this, arguments[0]);
 
         var path = dottedPath.split('.');
-        var item = target ? target : this;
+        var item = target;
 
         for (var i=0; i<path.length; i++) {
             if (!item) return undefined;
@@ -65,10 +66,11 @@ module.exports = {
      * change or define a configured attribute by dotted name
      */
     set: function set( target, dottedPath, value ) {
+        // TODO: would be more efficient to have a separate function for the `this` variant
         if (arguments.length < 3) return this.set(this, arguments[0], arguments[1]);
 
         var path = dottedPath.split('.');
-        var item = target ? target : this;
+        var item = target;
 
         for (var i=0; i<path.length-1; i++) {
             var field = path[i];
