@@ -4,8 +4,6 @@ qhash
 
 Hash and object manipulation
 
-**Work in progress**, check back soon.
-
 
 Api
 ----------------------------------------------------------------
@@ -73,7 +71,7 @@ Options:
 * `hide` - make the attached methods non-enumerable.  Default `false`.
 * `noOverwrite` - do not overwrite existing properties. Default `false`.
 
-Example:
+E.g.,
 
     var qhash = require('qhash');
     var hash = {};
