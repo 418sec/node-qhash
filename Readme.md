@@ -42,3 +42,18 @@ are created as necessary.  Returns the value.
 
 Retrieve the named property every hash contained in the array.  Returns an array of
 values in the same order as the hashes, with `undefined` for any unset property.
+
+
+### qhash.decorate( target, methods [,options] )
+
+Attach the given methods to the target object.  The `methods` argument is a name-value
+of the method names and method bodies to attach.
+
+    var hash = {};
+    qhash.decorate(hash, {set: qhash.set});
+    hash.set === qhash.set;             // => true
+
+Options:
+
+- `hide` - make the attached methods non-enumerable.  Default `false`.
+- `override` - overwrite existing properties by the same name as the methods.  Default `false`.
