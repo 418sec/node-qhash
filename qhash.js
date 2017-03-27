@@ -77,9 +77,9 @@ module.exports = {
 };
 
 // hide _merge, get and set from casual inspection
-Object.defineProperty(module.exports, '_merge', { enumerable: false });
-Object.defineProperty(module.exports, 'get', { enumerable: false });
-Object.defineProperty(module.exports, 'set', { enumerable: false });
+//Object.defineProperty(module.exports, '_merge', { enumerable: false });
+//Object.defineProperty(module.exports, 'get', { enumerable: false });
+//Object.defineProperty(module.exports, 'set', { enumerable: false });
 
 
 /** quicktest:

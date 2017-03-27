@@ -11,7 +11,7 @@ Api
 ----------------------------------------------------------------
 
 
-### qhash._merge( [target,] source [,noOverwrite] )
+### qhash.merge( [target,] source [,noOverwrite] )
 
 Deep copy the properties of the `source` hash into the `target` hash.  No sub-hash
 contained in source is reused on target, each is copied recursively.  If `target`
@@ -25,7 +25,7 @@ will also change on `source`.
 
     var dst = { };
     var src = { a: {b:2}, d: new Date() };
-    qhash._merge(dst, src);
+    qhash.merge(dst, src);
     dst.a                               // => {b:2}
     dst.a === src.a;                    // => false
     assert.deepEqual(dst.a, src.a);     // => true
