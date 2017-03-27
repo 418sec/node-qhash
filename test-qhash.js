@@ -135,4 +135,34 @@ describe ('qhash', function() {
             done();
         })
     })
+
+    describe ('selectField', function() {
+    })
+
+    describe ('decorate', function() {
+        it ('should attach methods', function(done) {
+            var fn = function(){};
+            var target = qhash.decorate({fn: 1, fn2: 2}, {fn: fn}, {});
+            assert.strictEqual(target.fn, fn);
+            assert.strictEqual(target.fn2, 2);
+            done();
+        })
+
+        it ('should not overwrite', function(done) {
+            var fn = function(){};
+            var target = qhash.decorate({fn: 1}, {fn: fn}, {noOverwrite: true});
+            assert.strictEqual(target.fn, 1);
+            done();
+        })
+
+        it ('should hide attached methods', function(done) {
+            var fn = function(){};
+            var target = qhash.decorate({}, {fn: fn}, {hide: true});
+            assert.equal(target.fn, fn);
+            assert.deepEqual(target, {});       // <-- odd one
+            assert('fn' in target);             // <-- another odd one
+            assert.ok(Object.keys(target).indexOf('fn') < 0);
+            done();
+        })
+    })
 })

@@ -40,8 +40,7 @@ module.exports = {
 
         function isHash(o) {
             // a hash object is not instanceof any class
-            return o && typeof o === 'object' &&
-                o.constructor &&
+            return o && typeof o === 'object' && o.constructor &&
                 o.constructor.name === 'Object';
         }
     },
@@ -50,13 +49,16 @@ module.exports = {
      * retrieve a configured attribute by dotted name
      */
     get: function get( target, dottedPath ) {
-        if (arguments.length < 3) { value = dottedPath; dottedPath = target; target = this }
+        if (arguments.length < 2) return this.get(target, arguments[0]);
+
         var path = dottedPath.split('.');
         var item = target ? target : this;
+
         for (var i=0; i<path.length; i++) {
             if (!item) return undefined;
             item = item[path[i]];
         }
+
         return item;
     },
 
@@ -64,14 +66,17 @@ module.exports = {
      * change or define a configured attribute by dotted name
      */
     set: function set( target, dottedPath, value ) {
-        if (arguments.length < 3) { value = dottedPath; dottedPath = target; target = this }
+        if (arguments.length < 3) return this.set(this, arguments[0], arguments[1]);
+
         var path = dottedPath.split('.');
         var item = target ? target : this;
+
         for (var i=0; i<path.length-1; i++) {
             var field = path[i];
             if (!item[field] || typeof item[field] !== 'object') item[field] = {};
             item = item[field];
         }
+
         return item[path[path.length-1]] = value;
     },
 
@@ -90,8 +95,10 @@ module.exports = {
     },
 
     decorate: function decorate( target, methods, options ) {
-        var hide = options && options.hide;
-        var noOverwrite = options && options.noOverwrite;
+        if (options) {
+            var hide = options.hide;
+            var noOverwrite = options.noOverwrite;
+        }
 
         for (var name in methods) {
             if (!noOverwrite || !(name in target)) {
@@ -105,11 +112,6 @@ module.exports = {
         return target;
     },
 };
-
-// hide _merge, get and set from casual inspection
-//Object.defineProperty(module.exports, '_merge', { enumerable: false });
-//Object.defineProperty(module.exports, 'get', { enumerable: false });
-//Object.defineProperty(module.exports, 'set', { enumerable: false });
 
 
 /** quicktest:
