@@ -29,9 +29,7 @@ describe ('qhash', function() {
                 [ {a:{b:1}}, {a:{c:2}}, {a:{b:1, c:2}} ],
                 [ {}, {a:[1,2,3]}, {a:[1,2,3]} ],
             ];
-
             testMergeDataset(dataset);
-
             done();
         })
 
