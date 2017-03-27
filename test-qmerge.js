@@ -5,7 +5,27 @@ var qhash = require('./');
 
 describe ('qhash', function() {
     describe ('_merge', function() {
+        function testMergeDataset( dataset ) {
+            for (var i=0; i<dataset.length; i++) {
+                var target = dataset[i][0];
+                var source = dataset[i][1];
+                var expect = dataset[i][2];
+
+                qhash.merge(target, source);
+                assert.deepEqual(target, expect);
+            }
+        }
+
         it ('should merge hashes', function(done) {
+            var dataset = [
+                [ {}, {a:1}, {a:1} ],
+                [ {a:{}}, {a:1}, {a:1} ],
+                [ {a:1}, {a:{b:2}}, {a:{b:2}} ],
+                [ {a:{b:1}}, {a:{c:2}}, {a:{b:1, c:2}} ],
+            ];
+
+            testMergeDataset(dataset);
+
             done();
         })
 
@@ -16,9 +36,19 @@ describe ('qhash', function() {
         it ('should assign class-ed properties directly', function(done) {
             done();
         })
+
+        it ('should merge into `this` if no target specified', function(done) {
+            done();
+        })
+
+        describe ('options', function() {
+            it ('noOverwrite should not alter existing properties', function(done) {
+                done();
+            })
+        })
     })
 
-    describe ('_get', function() {
+    describe ('get', function() {
         it ('should return property', function(done) {
             done();
         })
@@ -26,9 +56,13 @@ describe ('qhash', function() {
         it ('should return undefined if no such property', function(done) {
             done();
         })
+
+        it ('should get from `this` if no target specified', function(done) {
+            done();
+        })
     })
 
-    describe ('_set', function() {
+    describe ('set', function() {
         function testSetDataset( dataset ) {
             for (var i=0; i<dataset.length; i++) {
                 var target = dataset[i][0];
@@ -36,7 +70,7 @@ describe ('qhash', function() {
                 var value = dataset[i][2];
                 var expect = dataset[i][3];
 
-                qhash._set(target, name, value);
+                qhash.set(target, name, value);
                 assert.deepEqual(target, expect);
             }
         }
@@ -88,8 +122,16 @@ describe ('qhash', function() {
         it ('should set property to given object', function(done) {
             var x = {b:1};
             var target = {a:0};
-            qhash._set(target, 'a', x);
+            qhash.set(target, 'a', x);
             assert.strictEqual(target.a, x);
+            done();
+        })
+
+        it ('should set on `this` if no target specified', function(done) {
+            var target = {};
+            target.set = qhash.set;
+            target.set('a.b', 3);
+            assert.deepEqual(target.a, {b:3});
             done();
         })
     })
