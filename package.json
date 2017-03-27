@@ -1,0 +1,32 @@
+{
+  "name": "qhash",
+  "version": "0.0.1",
+  "main": "qhash.js",
+  "description": "merge hashes, get/set nested properties by dotted name",
+  "author": "andras@andrasq.com",
+  "license": "Apache-2.0",
+  "repository": {
+    "url": "git://github.com/andrasq/node-qhash",
+    "type": "git"
+  },
+  "engines": {
+    "node": ">=0.10"
+  },
+  "keywords": [
+    "hash",
+    "merge",
+    "_extend",
+    "assign"
+  ],
+  "dependencies": {
+  },
+  "devDependencies": {
+    "qnit": "*",
+    "qassert": "*"
+  },
+  "scripts": {
+    "test": "qnit --version && qnit test* || echo qnit not installed",
+    "coverage": "nyc --version && nyc --reporter text --reporter lcov qnit test* || echo nyc not installed",
+    "clean": "rm -rf .nyc_output coverage out"
+  }
+}
