@@ -60,6 +60,8 @@ values in the same order as the hashes, with `undefined` for any unset property.
 
     var dataset = [{a:1}, {a:2}, {c:3}];
     qhash.selectField(dataset, 'a');    // => [1, 2, undefined]
+    var dataset = [{a:{b:11}}, {a:{b:22}}];
+    qhash.selectField(dataset, 'a.b');  // => [11, 22]
 
 ### qhash.decorate( target, methods [,options] )
 
