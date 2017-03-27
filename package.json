@@ -1,6 +1,6 @@
 {
   "name": "qhash",
-  "version": "0.0.1",
+  "version": "0.0.2-dev",
   "main": "qhash.js",
   "description": "merge hashes, get/set nested properties by dotted name",
   "author": "andras@andrasq.com",
