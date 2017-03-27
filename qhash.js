@@ -54,6 +54,8 @@ module.exports = {
         // TODO: would be more efficient to have a separate function for the `this` variant
         if (arguments.length < 2) return this.get(this, arguments[0]);
 
+        if (dottedPath.indexOf('.') < 0) return target[dottedPath];
+
         var path = dottedPath.split('.');
         var item = target;
 
@@ -71,6 +73,8 @@ module.exports = {
     set: function set( target, dottedPath, value ) {
         // TODO: would be more efficient to have a separate function for the `this` variant
         if (arguments.length < 3) return this.set(this, arguments[0], arguments[1]);
+
+        if (dottedPath.indexOf('.') < 0) return target[dottedPath] = value;
 
         var path = dottedPath.split('.');
         var item = target;
