@@ -6,33 +6,6 @@
 
 module.exports = {
     /*
-     * Recursively merge in the properties of o2 into o1, and return o1.
-     * Existing properties of o1 are overwritten unless supplementOnly is set.
-     */
-    _merge1: function _merge1( o1, o2, supplementOnly ) {
-        if (typeof o2 !== 'object') {
-            supplementOnly = o2;
-            o2 = o1;
-            o1 = this;
-        }
-
-        for (var k in o2) {
-            if (typeof o1[k] === 'object' &&
-                typeof o2[k] === 'object' &&
-                Object.prototype.toString.apply(o1[k]) === '[object Object]' &&
-                Object.prototype.toString.apply(o2[k]) === '[object Object]')
-            {
-                _merge(o1[k], o2[k]);
-            }
-            else {
-                if (!supplementOnly || !(k in o1)) o1[k] = o2[k];
-            }
-        }
-
-        return o1;
-    },
-
-    /*
      * Recursively copy all properties of source onto target, and return target.
      * Existing properties of target are overwritten unless noOverwrite is set.
      *
