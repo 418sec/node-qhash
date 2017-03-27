@@ -70,10 +70,10 @@ name-value hash of the property names and property values to attach.  This call 
 be useful for decorating container objects with hidden get/set/merge methods.
 
 Options:
-- `hide` - make the attached methods non-enumerable.  Default `false`.
-- `noOverwrite` - do not overwrite existing properties.
-Default `false`.
+* `hide` - make the attached methods non-enumerable.  Default `false`.
+* `noOverwrite` - do not overwrite existing properties. Default `false`.
 
+Example:
 
     var qhash = require('qhash');
     var hash = {};
