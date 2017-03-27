@@ -4,7 +4,7 @@ qhash
 
 Hash and object manipulation
 
-*Work in progress*, check back soon.
+**Work in progress**, check back soon.
 
 
 Api
