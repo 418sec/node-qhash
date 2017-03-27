@@ -16,36 +16,44 @@ Api
 Deep copy the properties of the `source` hash into the `target` hash.  No sub-hash
 contained in source is reused on target, each is copied recursively.  If `target`
 is not specified, the `this` object is used.  If `noOverwrite` is set, existing
-properties of `target` are not modified.
+properties of `target` are not modified.  Returns `target`.
 
 Hashes are javascript objects that are not instanceof any class (ie, whose
 constructor is the same as the constructor of `{}`, `Object`).  Non-hash objects
-are assigned directly, so any properties of class-ed objects modified on `target`
-will also change on `source`.
+are assigned directly, so if any properties are modified of class instances merged
+into `target` they will also change in `source`.
 
     var dst = { };
     var src = { a: {b:2}, d: new Date() };
     qhash.merge(dst, src);
-    dst.a                               // => {b:2}
-    dst.a === src.a;                    // => false
-    assert.deepEqual(dst.a, src.a);     // => true
-    dst.d === src.d;                    // => true
+    dst.a                               // => {b:2}, hash copied
+    dst.a === src.a;                    // => false, copied into new hash
+    assert.deepEqual(dst.a, src.a);     // => true, hash contents match
+    dst.d === src.d;                    // => true, same Date instance
+    dst.d.x = 1;
+    src.d.x === 1;                      // => true, same Date modified
 
 ### qhash.get( [source,] name )
 
 Retrieve a property set on the `source` hash by dotted name.  Returns the property
-value.  If the named property does not exist, returns `undefined`.
+value.  Returns `undefined` if the named property or one of its internal hashes is
+not set.
 
     qhash.get({ a: {b: 2} }, 'a');      // => {b: 2}
     qhash.get({ a: {b: 2} }, 'a.b');    // => 2
     qhash.get({ a: {b: 2} }, 'b');      // => undefined
+    qhash.get({ a: {} }, 'a.b.c');      // => undefined
 
 ### qhash.set( [target,] name, value )
 
 Set a property on the `target` hash by dotted name.  Any missing internal hashes
-are created as necessary.  Returns the value.
+are created as necessary.  Returns the `value`.
+
+It is possible to set a properto to `undefined`, which will be indinstinguishable
+from an unset property.
 
     qhash.set({}, 'a', 1);              // => { a: 1 }
+    qhash.set({}, 'a.a.a', 1);          // => { a: {a: {a: 1}} }
     qhash.set({c:3}, 'a.b', 1);         // => { c: 3, a: {b: 1} }
 
 ### qhash.selectField( arrayOfHashes, columnName )
@@ -53,6 +61,8 @@ are created as necessary.  Returns the value.
 Retrieve the named property from every hash in the array.  Returns an array of
 values in the same order as the hashes, with `undefined` for any unset property.
 
+    var dataset = [{a:1}, {a:2}, {c:3}];
+    qhash.selectField(dataset, 'a');    // => [1, 2, undefined]
 
 ### qhash.decorate( target, methods [,options] )
 
@@ -60,17 +70,17 @@ Attach the given properties to the target object.  The `methods` argument is a
 name-value hash of the property names and property values to attach.  This call can
 be useful for decorating container objects with hidden get/set/merge methods.
 
+Options:
+
+- `hide` - make the attached methods non-enumerable.  Default `false`.
+- `noOverwrite` - do not overwrite existing properties.  Default `false`.
+
     var qhash = require('qhash');
     var hash = {};
     qhash.decorate(hash, { set: qhash.set, get: qhash.get });
     hash.set === qhash.set;             // => true
     hash.set('a', 1);
     hash.a === 1;                       // => true
-
-Options:
-
-- `hide` - make the attached methods non-enumerable.  Default `false`.
-- `noOverwrite` - do not overwrite existing properties.  Default `false`.
 
 Related Work
 ----------------------------------------------------------------
