@@ -46,12 +46,12 @@ not set.
 Set a property on the `target` hash by dotted name.  Any missing internal hashes
 are created as necessary.  Returns the `value`.
 
-It is possible to set a property to `undefined`, which will be indinstinguishable
-from an unset property.
+It is possible to set a property to `undefined`, making it appear to be unset.
 
-    qhash.set({}, 'a', 1);              // => { a: 1 }
-    qhash.set({}, 'a.a.a', 1);          // => { a: {a: {a: 1}} }
-    qhash.set({c:3}, 'a.b', 1);         // => { c: 3, a: {b: 1} }
+    var x;
+    qhash.set(x = {}, 'a', 1);          // x => { a: 1 }
+    qhash.set(x = {}, 'a.a.a', 1);      // x => { a: {a: {a: 1}} }
+    qhash.set(x = {c:3}, 'a.b', 1);     // x => { c: 3, a: {b: 1} }
 
 ### qhash.selectField( arrayOfHashes, columnName )
 
