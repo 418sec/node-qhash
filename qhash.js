@@ -76,9 +76,9 @@ module.exports = {
     /*
      * retrieve a configured attribute by dotted name
      */
-    _get: function _get( dottedPath ) {
+    _get: function _get( target, dottedPath ) {
         var path = dottedPath.split('.');
-        var item = this;
+        var item = target ? target : this;
         for (var i=0; i<path.length; i++) {
             if (!item) return undefined;
             item = item[path[i]];
@@ -89,9 +89,9 @@ module.exports = {
     /*
      * change or define a configured attribute by dotted name
      */
-    _set: function _set( dottedPath, value ) {
+    _set: function _set( target, dottedPath, value ) {
         var path = dottedPath.split('.');
-        var item = this;
+        var item = target ? target : this;
         for (var i=0; i<path.length-1; i++) {
             var field = path[i];
             if (!item[field] || typeof item[field] !== 'object') item[field] = {};
@@ -107,7 +107,7 @@ Object.defineProperty(module.exports, '_get', { enumerable: false });
 Object.defineProperty(module.exports, '_set', { enumerable: false });
 
 
-///** quicktest:
+/** quicktest:
 
 var config = module.exports;
 
