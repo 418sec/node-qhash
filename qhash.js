@@ -107,7 +107,7 @@ module.exports = {
 
         for (var name in methods) {
             if (!noOverwrite || !(name in target)) {
-                target[name] =  methods[name];
+                target[name] = methods[name];
                 if (hide) {
                     Object.defineProperty(target, name, { enumerable: false });
                 }
