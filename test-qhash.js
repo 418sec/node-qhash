@@ -128,6 +128,9 @@ describe ('qhash', function() {
                 [ {a: {b: {c: 1}}}, 'a.b.d', undefined ],
                 [ {a: {b: {c: 1}}}, 'a.b.c.d', undefined ],
                 [ {a: [1,2,3]}, 'a.1', 2 ],
+                [ {a: {b: {c: {d: {e:123}}}}}, 'a.b.c.d.e', 123 ],
+                [ {a: {b: {c: {d: {e:123}}}}}, 'a.x.c.d.e', undefined ],
+                [ {a: {b: {c: {d: {e:123}}}}}, 'a.b.c.x.e', undefined ],
             ];
             testGetDataset(dataset);
             done();
@@ -189,6 +192,7 @@ describe ('qhash', function() {
         })
 
         it ('should overwrite existing property', function(done) {
+            var regexWithB = /x/; regexWithB[0] = {b:1};
             var dataset = [
                 [ {a:1}, 'a', 2, {a:2} ],
                 [ {a:1}, 'a', null, {a:null} ],
@@ -196,6 +200,8 @@ describe ('qhash', function() {
                 [ {a:{b:1}}, 'a.b', {c:3}, {a:{b:{c:3}}} ],
                 [ {a:{b:{c:1}}}, 'a.b', 3, {a:{b:3}} ],
                 [ {a:{b:1}}, 'a', 3, {a:3} ],
+                [ {a:[]}, 'a.0.b', 1, {a:[{b:1}]} ],
+                [ {a:/x/}, 'a.0.b', 1, {a:regexWithB} ],
             ];
             testSetDataset(dataset);
             done();

@@ -50,41 +50,39 @@ module.exports = {
     /*
      * retrieve a configured attribute by dotted name
      */
+    // TODO: would be more efficient to have a separate function for the `this` variant
     get: function get( target, dottedPath ) {
-        // TODO: would be more efficient to have a separate function for the `this` variant
         if (arguments.length < 2) return this.get(this, arguments[0]);
 
-        if (dottedPath.indexOf('.') < 0) return target[dottedPath];
+        var noDots = true;
+        for (var i=0; i<dottedPath.length; i++) if (dottedPath.charCodeAt(i) === 0x2E) { noDots = false; break; }
+        if (noDots) return target[dottedPath];
 
         var path = dottedPath.split('.');
-        var item = target;
-
-        for (var i=0; i<path.length; i++) {
+        for (var item=target, i=0; i<path.length; i++) {
             if (!item) return undefined;
             item = item[path[i]];
         }
-
         return item;
     },
 
     /*
      * change or define a configured attribute by dotted name
      */
+    // TODO: would be more efficient to have a separate function for the `this` variant
     set: function set( target, dottedPath, value ) {
-        // TODO: would be more efficient to have a separate function for the `this` variant
         if (arguments.length < 3) return this.set(this, arguments[0], arguments[1]);
 
-        if (dottedPath.indexOf('.') < 0) return target[dottedPath] = value;
+        var noDots = true;
+        for (var i=0; i<dottedPath.length; i++) if (dottedPath.charCodeAt(i) === 0x2E) { noDots = false; break; }
+        if (noDots) return target[dottedPath] = value;
 
         var path = dottedPath.split('.');
-        var item = target;
-
-        for (var i=0; i<path.length-1; i++) {
+        for (var item=target, i=0; i<path.length-1; i++) {
             var field = path[i];
             if (!item[field] || typeof item[field] !== 'object') item[field] = {};
             item = item[field];
         }
-
         return item[path[path.length-1]] = value;
     },
 
@@ -124,3 +122,10 @@ module.exports = {
 
 // aliases
 module.exports.pluck = module.exports.selectField;
+
+
+function indexOfCharCode( str, ch ) {
+    var len = str.length;
+    for (var i=0; i<len; i++) if (str.charCodeAt(i) === ch) return i;
+    return -1;
+}
