@@ -131,6 +131,8 @@ describe ('qhash', function() {
                 [ {a: {b: {c: {d: {e:123}}}}}, 'a.b.c.d.e', 123 ],
                 [ {a: {b: {c: {d: {e:123}}}}}, 'a.x.c.d.e', undefined ],
                 [ {a: {b: {c: {d: {e:123}}}}}, 'a.b.c.x.e', undefined ],
+                [ {a: null}, 'a.b', undefined ],
+                [ {a: null}, 'a.b.c', undefined ],
             ];
             testGetDataset(dataset);
             done();
