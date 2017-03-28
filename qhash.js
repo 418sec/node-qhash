@@ -7,6 +7,7 @@
 
 'use strict';
 
+
 module.exports = {
     /*
      * Recursively copy all properties of source onto target, and return target.
@@ -18,11 +19,7 @@ module.exports = {
      * modified on them will be changed in the source too.
      */
     merge: function merge( target, source, noOverwrite ) {
-        if (typeof source !== 'object') {
-            noOverwrite = source;
-            source = target;
-            target = this;
-        }
+        if (typeof source !== 'object') return merge(this, target, source);
 
         for (var key in source) {
             if (noOverwrite && (key in target)) {
@@ -40,11 +37,6 @@ module.exports = {
         }
 
         return target;
-
-        function isHash(o) {
-            // a hash object is not instanceof any class
-            return o && typeof o === 'object' && o.constructor == Object;
-        }
     },
 
     /*
@@ -135,3 +127,9 @@ function indexOfCharCode( str, ch ) {
     return -1;
 }
 **/
+
+
+// a hash object is not instanceof any class
+function isHash(o) {
+    return o && typeof o === 'object' && o.constructor == Object;
+}
