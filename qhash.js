@@ -124,8 +124,10 @@ module.exports = {
 module.exports.pluck = module.exports.selectField;
 
 
+/**
 function indexOfCharCode( str, ch ) {
     var len = str.length;
     for (var i=0; i<len; i++) if (str.charCodeAt(i) === ch) return i;
     return -1;
 }
+**/
