@@ -50,7 +50,6 @@ module.exports = {
     /*
      * retrieve a configured attribute by dotted name
      */
-    // TODO: would be more efficient to have a separate function for the `this` variant
     get: function get( target, dottedPath ) {
         if (arguments.length < 2) return this.get(this, arguments[0]);
 
@@ -69,7 +68,6 @@ module.exports = {
     /*
      * change or define a configured attribute by dotted name
      */
-    // TODO: would be more efficient to have a separate function for the `this` variant
     set: function set( target, dottedPath, value ) {
         if (arguments.length < 3) return this.set(this, arguments[0], arguments[1]);
 
@@ -86,6 +84,9 @@ module.exports = {
         return item[path[path.length-1]] = value;
     },
 
+    /*
+     * select the named column from the rows
+     */
     selectField: function selectField( array, name ) {
         var ret = new Array(array.length);
         if (name.indexOf('.') < 0) {
@@ -101,6 +102,9 @@ module.exports = {
     },
     pluck: 'alias of selectField',
 
+    /*
+     * decorate target with new methods
+     */
     decorate: function decorate( target, methods, options ) {
         if (options) {
             var hide = options.hide;
