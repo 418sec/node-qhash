@@ -88,5 +88,8 @@ E.g.,
 Related Work
 ----------------------------------------------------------------
 
-- `util._extend()` - shallow copy `own` properties of objects
-- `Object.assign()` - shallow copy properties of objects
+- `util._extend(to, fm)` - shallow copy (in reverse order!) of `own` properties, 8.4m/s
+- `Object.assign(to, fm)` - shallow copy (in order) of `own` properties, 3.3m/s
+- `Object.create(ob)` - new object with its inherited properties set to the copied object, 17m/s
+- `for (key in ob)` - iterate over all enumerable properties, 16m/s copy but only 1m/s if ob has non-empty prototype
+- `Object.keys(ob)` - list of enumerable `own` properties, 13m/s for just keys, 8.8m/s copy
