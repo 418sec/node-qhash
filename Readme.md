@@ -1,6 +1,8 @@
 qhash
 ================================================================
 
+[![Build Status](https://travis-ci.org/andrasq/node-qhash.svg?branch=master)](https://travis-ci.org/andrasq/node-qhash)
+[![Coverage Status](https://coveralls.io/repos/github/andrasq/node-qhash/badge.svg?branch=master)](https://coveralls.io/github/andrasq/node-qhash?branch=master)
 
 Hash and object manipulation
 
