@@ -27,7 +27,6 @@
   "scripts": {
     "test": "qnit test-*",
     "coverage": "nyc --reporter text --reporter lcov npm test",
-    "clean": "rm -rf .nyc_output coverage out",
-    "coveralls": "nyc --reporter text-lcov npm test | coveralls"
+    "clean": "rm -rf .nyc_output coverage out"
   }
 }
