@@ -287,4 +287,23 @@ describe ('qhash', function() {
             })
         })
     })
+
+    describe ('optimize', function() {
+        it ('should return the hash', function(done) {
+            var hash = Object();
+            hash.a = 1;
+            hash.b = 2;
+            var struct = qhash.optimize(hash);
+            assert.equal(struct, hash);
+            done();
+        })
+
+        it ('should leave the hash attached as the property on optimize', function(done) {
+            // this is an internal implementation detail
+            var hash = Object();
+            qhash.optimize(hash);
+            assert.equal(qhash.optimize.prototype, hash);
+            done();
+        })
+    })
 })

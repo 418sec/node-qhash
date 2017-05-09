@@ -114,6 +114,24 @@ module.exports = {
 
         return target;
     },
+
+    /*
+     * convert the hash to a struct for optimized access
+     * Node objects can be hashes or structs.  A hash is tuned for varied
+     * property names; a struct for a fixed set of properties in mapped
+     * locations, making property access much faster.  Adding new properties
+     * to the struct converts it back into a hash.
+     */
+    optimize: function optimize( hash ) {
+        // making an object be a class prototype makes it into a struct
+        // In javascript any function, even this one, can have a prototype.
+        optimize.prototype = hash;
+
+        // leave the prototype attached to this function so it becomes a
+        // permanent side-effect that cannot be null-code eliminated.
+
+        return hash;
+    },
 };
 
 // aliases

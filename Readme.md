@@ -87,6 +87,25 @@ E.g.,
     Object.keys(hash);                  // => [ 'a' ]
     JSON.stringify(hash);               // '{"a":123}'
 
+### qhash.optimize( obj )
+
+Convert `obj` to a struct for optimized property access.
+
+Node objects can be hashes or structs.  A hash is tuned for unpredictable property
+names; a struct for a fixed set of properties in mapped locations.  The difference
+between hash and struct is invisible, but it is faster to access the properties of
+a struct.
+
+Node internally will also detect usage and eventually convert:  repeatedly
+accessing the same properties on a hash will optimize it into a struct, and adding
+new properties to a struct will convert it into a hash.
+
+    var obj = new Object();             // once a hash
+    obj.a = 1;
+    obj.b = 2;
+    qhash.optimize(obj);                // now a struct
+
+
 Related Work
 ----------------------------------------------------------------
 
