@@ -238,6 +238,10 @@ describe ('qhash', function() {
                 [ [ {b:1} ], 'a.b', [ undefined ] ],
                 // by direct name
                 [ [ {a:1} ], 'a', [ 1 ] ],
+                [ [ {a:0} ], 'a', [ 0 ] ],
+                [ [ {a:false} ], 'a', [ false ] ],
+                [ [ {a:""} ], 'a', [ "" ] ],
+                [ [ {a:null} ], 'a', [ null ] ],
                 [ [ {a:1}, {b:0, a:2} ], 'a', [ 1, 2 ] ],
                 [ [ {a:1}, {b:0, a:2} ], 'a', [ 1, 2 ] ],
                 [ [ {a:1}, {b:0}, {a:2} ], 'a', [ 1, undefined, 2 ] ],
@@ -245,7 +249,7 @@ describe ('qhash', function() {
                 [ [ {a:{a:1}}, {a:{}}, {}, {a:{a:{}}}, {a:{a:{a:1}}} ], 'a.a', [ 1, undefined, undefined, {}, {a:1} ] ],
             ];
             for (var i=0; i<dataset.length; i++) {
-                assert.deepEqual(qhash.selectField(dataset[i][0], dataset[i][1]), dataset[i][2]);
+                assert.deepStrictEqual(qhash.selectField(dataset[i][0], dataset[i][1]), dataset[i][2], "test #" + i);
             }
             done();
         })
