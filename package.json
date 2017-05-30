@@ -1,6 +1,6 @@
 {
   "name": "qhash",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "main": "qhash.js",
   "description": "merge hashes, get/set nested properties by dotted name",
   "author": "andras@andrasq.com",
@@ -21,8 +21,8 @@
   "dependencies": {
   },
   "devDependencies": {
-    "qnit": "*",
-    "qassert": "*"
+    "qnit": "0.16.0",
+    "qassert": "1.2.0"
   },
   "scripts": {
     "test": "qnit test-*",
