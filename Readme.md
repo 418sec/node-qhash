@@ -85,7 +85,7 @@ E.g.,
     hash.a === 123;                     // => true
     hash.get('a');                      // => 123
     Object.keys(hash);                  // => [ 'a' ]
-    JSON.stringify(hash);               // '{"a":123}'
+    JSON.stringify(hash);               // => '{"a":123}'
 
 ### qhash.optimize( obj )
 
