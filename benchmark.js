@@ -16,7 +16,7 @@ var hash1M = {firstFieldName: 1};
 var hash2S = {firstName: {secondName: 1}};
 var h0 = {}, h1 = {a:1}, h5 = {a:{b:{c:{d:{e:123}}}}}
 var hfoo = {foo:1}
-qtimeit.bench({
+if (1) qtimeit.bench({
     'merge {}, {a:1}': function(){
         x = qhash.merge({}, h1);
     },
