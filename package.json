@@ -2,7 +2,7 @@
   "name": "qhash",
   "version": "1.1.2",
   "main": "qhash.js",
-  "description": "merge hashes, get/set nested properties by dotted name",
+  "description": "merge and deep-copy objects, get/set nested properties by dotted name",
   "author": "andras@andrasq.com",
   "license": "Apache-2.0",
   "repository": {
@@ -12,12 +12,7 @@
   "engines": {
     "node": ">=0.10"
   },
-  "keywords": [
-    "hash",
-    "merge",
-    "_extend",
-    "assign"
-  ],
+  "keywords": [ "merge", "extend", "assign", "get", "set", "deep-copy", "clone" ],
   "dependencies": {
   },
   "devDependencies": {
