@@ -12,15 +12,15 @@ Api
 
 ### qhash.merge( [target,] source [,noOverwrite] )
 
-Deep copy the properties of the `source` hash into the `target` hash.  No sub-hash
+Deep copy all enumerable properties of the `source` hash into the `target` hash.  No sub-hash
 contained in source is reused on target, each is copied recursively.  If `target`
 is not specified, the `this` object is used.  If `noOverwrite` is set, existing
 properties of `target` are not modified.  Returns `target`.
 
 Hashes are javascript objects that are not instanceof any class (ie, whose
 constructor is the same as the constructor of `{}`, `Object`).  Non-hash objects
-are assigned directly, so if any properties are modified of class instances merged
-into `target` they will also change in `source`.
+are assumed to be class instances and are assigned directly; if their properties
+are modified in `target`, they will also change in `source`.
 
     var dst = { };
     var src = { a: {b:2}, d: new Date() };
