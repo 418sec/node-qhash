@@ -32,6 +32,16 @@ are modified in `target`, they will also change in `source`.
     dst.d.x = 1;
     src.d.x === 1;                      // => true, same Date modified
 
+### qhash.mmerge( target, source1 [,source2] [,source3 ...] [,noOverwrite] )
+
+Merge multiple:  recursively deep copy all properties from all sources onto `target`
+by repeatedly calling `qhash.merge`.  `Target` must be specified, there is no default.
+It is safe to layer multiple read-only hashes, No sub-hash from any source is used
+directly.  Returns `target`.
+
+If `noOverwrite` is set it retains the first seen version of each set property (from
+the lowest-numered source object), else retains the last seen version.
+
 ### qhash.get( [source,] name )
 
 Retrieve a property set on the `source` hash by dotted name.  Returns the property

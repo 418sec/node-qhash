@@ -40,6 +40,23 @@ module.exports = {
     },
 
     /*
+     * Merge multiple:  recursively copy all properties from all sources onto target.
+     * Target must be specified, there is no default.
+     * If `noOverwrite` is truthy keep the first seen version of each set property
+     * (from the lowest-numered source object), else keep the last seen version.
+     */
+    mmerge: function mmerge( target, source /* , source2, source3, ..., noOverwrite */ ) {
+        var args = new Array();
+        for (var i=0; i<arguments.length; i++) args[i] = arguments[i];
+
+        var noOverwrite = typeof args[args.length - 1] !== 'object' ? args.pop() : false;
+        var target = args[0];
+        for (var i=1; i<args.length; i++) module.exports.merge(target, args[i], noOverwrite);
+
+        return target;
+    },
+
+    /*
      * retrieve a configured attribute by dotted name
      */
     get: function get( target, dottedPath ) {

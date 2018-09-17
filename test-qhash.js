@@ -101,6 +101,40 @@ describe ('qhash', function() {
         })
     })
 
+    describe ('mmerge', function() {
+        it ('should merge no sources', function(done) {
+            var target = {};
+            var target2 = qhash.mmerge(target, false);
+            assert.equal(target2, target);
+            assert.deepEqual(target2, {});
+            done();
+        })
+
+        it ('should deep-copy source', function(done) {
+            var source = { a: {} };
+            var target = qhash.mmerge({}, source);
+            assert.deepEqual(target, source);
+            assert.notEqual(target.a, source.a);
+            done();
+        })
+
+        it ('should copy multiple sources', function(done) {
+            var source1 = { a: {s:1} };
+            var source2 = { b: {s:2} };
+            var source3 = { a: {s:3} };
+
+            // keeping first seen property
+            var target = qhash.mmerge({}, source1, source2, source3, true);
+            assert.deepEqual(target, {a:{s:1}, b:{s:2}});
+
+            // keeping last seen property
+            var target = qhash.mmerge({}, source1, source2, source3 );
+            assert.deepEqual(target, {a:{s:3}, b:{s:2}});
+
+            done();
+        })
+    })
+
     describe ('get', function() {
         function testGetDataset( dataset ) {
             for (var i=0; i<dataset.length; i++) {
