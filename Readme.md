@@ -65,6 +65,15 @@ values in the same order as the hashes, with `undefined` for any unset property.
     var dataset = [{a:{b:11}}, {a:{b:22}}];
     qhash.selectField(dataset, 'a.b');  // => [11, 22]
 
+### qhash.mapById( arrayOfObjects, idName [,intoHash] )
+
+Map the array if objects by their `idName` property into the provided hash `intoHash`
+(or into a new hash `{}`), and return the mapping.
+
+    var dataset = [ { _id: 'one', a: 1 }, { _id: 'two', b: 2 } ];
+    var hash = qhash.mapById(dataset, '_id');
+    // => { one: {_id:'one', a:1}, two:{_id:'two', b:2} }
+
 ### qhash.decorate( target, methods [,options] )
 
 Attach the given properties to the target object.  The `methods` argument is a

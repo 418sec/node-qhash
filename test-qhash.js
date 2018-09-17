@@ -255,6 +255,36 @@ describe ('qhash', function() {
         })
     })
 
+    describe ('mapById', function() {
+        it ('should convert the array to a hash', function(done) {
+            var dataset = [
+                [ [{a:1}, {a:2}], 'a', { '1': {a:1}, '2': {a:2} } ],
+                [ [{a:1}, {aa:2}], 'a', {'1':{a:1}} ],
+                [ [{a:1}, {a:undefined}], 'a', {'1':{a:1}} ],
+                [ [{}, {a:null}], 'a', {'null':{a:null}} ],
+                [ [{a:1}, {a:1}], 'a', { '1': {a:1} } ],
+
+                [ [{a:1}, {a:2}], 'b', {} ],
+                [ [{}, {a:undefined}], 'a', {} ],
+                [ [], 'a', {} ],
+            ];
+
+            for (var i=0; i<dataset.length; i++) {
+                assert.deepStrictEqual(qhash.mapById(dataset[i][0], dataset[i][1]), dataset[i][2]);
+            }
+
+            done();
+        })
+
+        it ('should insert into provided hash', function(done) {
+            var hash = {};
+            var hash2 = qhash.mapById([ {a:'one'}, {a:'two'} ], 'a', hash);
+            assert.equal(hash2, hash);
+            assert.deepEqual(hash2, { one: {a:'one'}, two: {a:'two'} });
+            done();
+        })
+    })
+
     describe ('decorate', function() {
         it ('should return target', function(done) {
             var target = {};

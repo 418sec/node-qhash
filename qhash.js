@@ -95,6 +95,17 @@ module.exports = {
     pluck: 'alias of selectField',
 
     /*
+     * map the items in the array into a hash indexed by their id
+     */
+    mapById: function mapById( array, id, into ) {
+        into = into || {};
+        for (var i=0; i<array.length; i++) {
+            if (array[i][id] !== undefined) into[array[i][id]] = array[i];
+        }
+        return into;
+    },
+
+    /*
      * decorate target with new methods
      */
     decorate: function decorate( target, methods, options ) {
