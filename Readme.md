@@ -77,12 +77,12 @@ values in the same order as the hashes, with `undefined` for any unset property.
 
 ### qhash.mapById( arrayOfObjects, idName [,intoHash] )
 
-Map the array if objects by their `idName` property into the provided hash `intoHash`
+Map the array of objects by their `idName` property into the provided hash `intoHash`
 (or into a new hash `{}`), and return the mapping.
 
     var dataset = [ { _id: 'one', a: 1 }, { _id: 'two', b: 2 } ];
     var hash = qhash.mapById(dataset, '_id');
-    // => { one: {_id:'one', a:1}, two:{_id:'two', b:2} }
+    // => { one: {_id:'one', a:1}, two: {_id:'two', b:2} }
 
 ### qhash.decorate( target, methods [,options] )
 
