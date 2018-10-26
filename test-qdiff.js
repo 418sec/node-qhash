@@ -165,7 +165,10 @@ module.exports = {
                 t.done();
             },
 
-            'should backup even if no Buffer.allocUnsage': function(t) {
+            'should backup even if no Buffer.allocUnsafe': function(t) {
+                // node-v6 calls allocUnsafe from its constructor, cannot test
+                if (parseInt(process.version.slice(1)) === 6) return t.skip();
+
                 var allocUnsafe = Buffer.allocUnsafe;
                 delete Buffer.allocUnsafe;
                 var bak = qdiff.backup(new Buffer("abc"));
