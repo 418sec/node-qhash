@@ -14,8 +14,8 @@
   "dependencies": {
   },
   "devDependencies": {
-    "qnit": "0.16.0",
-    "qassert": "1.2.0"
+    "qnit": "0.25.0",
+    "qassert": "1.6.1"
   },
 
   "scripts": {
