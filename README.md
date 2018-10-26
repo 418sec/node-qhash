@@ -138,8 +138,9 @@ property or object attributes, will be reflected in a subsequent backup.
 ### qdiff.compare( backup1, backup2, [options] )
 
 Compare the two backups and return `true` if they are the same, `false` if they are not.
-This comparison detects added/deleted/changed properties, as well as changes to property
-attributes (writable, enumerable, configurable) or object state (sealed, frozen, extensible).
+This comparison detects added/deleted/changed contents and properties, as well as
+changes to property attributes (writable, enumerable, configurable) or state (sealed,
+frozen, extensible).
 
 Options:
 
