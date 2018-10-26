@@ -2,25 +2,24 @@
   "name": "qhash",
   "version": "1.2.0",
   "main": "qhash.js",
-  "description": "merge and deep-copy objects, get/set nested properties by dotted name",
+  "description": "merge objects, get/set nested properties by dotted name, taint detect",
   "author": "andras@andrasq.com",
   "license": "Apache-2.0",
-  "repository": {
-    "url": "git://github.com/andrasq/node-qhash",
-    "type": "git"
-  },
+  "repository": "git://github.com/andrasq/node-qhash",
   "engines": {
     "node": ">=0.10"
   },
-  "keywords": [ "merge", "extend", "assign", "get", "set", "deep-copy", "clone" ],
+  "keywords": [ "merge", "extend", "assign", "get", "set", "backup", "compare", "diff", "taint" ],
+
   "dependencies": {
   },
   "devDependencies": {
     "qnit": "0.16.0",
     "qassert": "1.2.0"
   },
+
   "scripts": {
-    "test": "qnit test-*",
+    "test": "qnit test-q*",
     "coverage": "nyc --reporter text --reporter lcov npm test",
     "clean": "rm -rf .nyc_output coverage out"
   }

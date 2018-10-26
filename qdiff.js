@@ -3,11 +3,14 @@
  * Licensed under the Apache License, Version 2.0
  * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- * 2018-06-25 - AR.
+ * 2018-06-25 - Started - AR.
+ * 2018-10-11 - first working version
+ * 2018-10-26 - fixed, 100% test coverage
  */
 
 'use strict';
 
+var util = require('util');
 
 var Pipe = process.binding('pipe_wrap').Pipe;
 var TTY = process.binding('tty_wrap').TTY;
@@ -23,22 +26,22 @@ var qdiff = module.exports = {
  * already-seen objects store for handling recusive objects
  */
 function ObjectMap( ) {
-    if (typeof Map !== 'undefined') {
+    if (typeof global.Map !== 'undefined') {
         var map = new Map();
         return map;
     }
     else {
         this.keys = new Array();
         this.values = new Array();
-        this.has = function(obj) { return this.keys.indexOf(obj) >= 0 };
         this.set = function(obj, copy) { this.keys.push(obj); this.values.push(copy) };
         this.get = function(obj) { var ix = this.keys.indexOf(obj); return ix >= 0 ? this.values[ix] : undefined };
+        //this.has = function(obj) { return this.keys.indexOf(obj) >= 0 };
         return this;
     }
 }
 
 /**
- * save the object state so it can be completely restored later
+ * save the object state so any changes can be detected
  * Object state and all properties are preserved.
  * Note that if obj contains recursive elements, the backup will also be recursive.
  */
@@ -62,28 +65,32 @@ function backup( obj, alreadySeen, depth ) {
 
     bak = {
         oflags: encodeObjectFlags(obj),
-        value: backupValue(obj),
+        value: _backupValue(obj),
         //special: {},
         props: {},
     };
 
     alreadySeen.set(obj, bak);
 
-// FIXME: bound functions cannot be un-bound or bound to another object!
-// FIXME: a bound function will modify its original bound-to object, not the copy.
-// FIXME: how to detect a bound function?
-// FIXME: process.env is magic, and cannot be duplicated, but its props can be reset
-// FIXME: parts of console are magic (TTY and Pipe)
+    // notes re clone:
+    //   note: how to detect a bound function?
+    //   note: bound functions cannot be un-bound or bound to another object!
+    //   note: a bound function will modify its original bound-to object, not the copy.
+    //   note: process.env is magic, and cannot be duplicated, but its props can be reset
+    //   note: parts of console are magic (TTY and Pipe)
 
-// NOTE: it is 2x faster to get all property names then all descriptors than to getOwnPropertyDescriptors
+    //   note: it is 2x faster to get all property names then all descriptors than to getOwnPropertyDescriptors
 
-// TODO: special-case array-like objects, iterate their contents by index, not get...Property
     // arrays and buffers were backed up by duplicateValue above, but copy any attached properties
     if (isArrayLike(obj)) {
-        // FIXME: Buffers have properties 0,1,2,3... but no length ?! (but 0.10.42 has length, parent, offset, maybe offset)
-        //   (node-v10 Buffer properties length, __proto__, constructor have a value, but no property descriptor)
-        // FIXME: Arrays have "properties" 0,1,2,3... and length, none of which should be backed up or restored
-        // NOTE: Buffer length, parent, offset are readable but immutable, no need to back up (and get() as null properties)
+        // TODO: special-case arrays and buffers, iterate contents without getDescriptor
+        // note: node-v0.10.42 Bufferse have length, parent, offset, maybe offset
+        // node-v8 Buffers have properties 0,1,2,3... but no length descriptor
+        // node-v10 Buffer length, __proto__, constructor properties have a value, but no descriptor
+        // note: some node Buffer length, parent, offset are readable but immutable, no need to back up (and get() as null properties)
+        // note: sparse array defined offsets are available via Object.keys
+        // note: x = []; Object.defineProperty(x, 3, { value: 7 }); sets x.length = 4 and x[3] = 7,
+        //   but console.log prints [,,,[3]:7] (v0.10-v7.8) or [<4 empty items>] (v8+)
     }
 
     for (var i=0; i<propertyNames.length; i++) {
@@ -91,14 +98,6 @@ function backup( obj, alreadySeen, depth ) {
 
         // caller, callee and arguments properties are managed by nodejs (and may not be accessed in strict mode functions)
         if (typeof obj === 'function' && (name === 'caller' || name === 'callee' || name === 'arguments')) continue;
-        
-        // some exotic prototype objects cannot run getters without an instance
-        if (obj.constructor === TTY && (name === 'fd' || name === 'bytesRead' || name === '_externalStream')) {
-            // also sometimes on console:  TypeError: Method bytesRead called on incompatible receiver #<Pipe>
-//console.log("AR: object is Pipe or TTY and name='%', skipping", name);
-            bak.props[name] = '<proto getter unavailable>';
-            continue;
-        }
 
         if (name === '__proto__' || name === 'constructor') {
             // TODO: ... do not access proto and constructor as properties ??
@@ -109,25 +108,21 @@ function backup( obj, alreadySeen, depth ) {
         // note: a defined property does not show up with Object.keys, but does with getOwnPropertyNames
         // Ie, to restore as on original, must restore as direct property key 'K' or as defined property 'P'
 
-//x console.log("%s -- AR: obj '%s':", new Date().toISOString(), name, typeof obj, obj.__proto__ ? true : false, obj.constructor && obj.constructor.name);
-//if (typeof obj == 'function' && name == 'length') console.log("AR: names:", propertyNames);
-//x if (name === 'bytesRead') console.log("AR: name:", name, propertyNames);
-//x console.log("AR: about to get property descriptor '%s' of", name, typeof obj, Object.keys(obj));
+        var desc = tryCall(Object, 'getOwnPropertyDescriptor', obj, name);
+        if (desc === null) {
+            // some exotic prototype objects cannot run getters without an instance,
+            // work around the TypeError: Method bytesRead called on incompatible receiver #<Pipe>
+            bak.props[name] = { pflags: 'E---', value: '<cannot get descriptor>' };
+            continue;
+        }
+        else if (desc === undefined) {
+            // buffer 'length', 'parent', 'offset' are readable, immutable, and get() as null properties -- ok to skip
+            bak.props[name] = { pflags: 'B---', value: obj[name] };
+            continue;
+        }
 
-// FIXME: length on Pipe calls bytesRead getter, which breaks
-// FIXME: logged as
-// 2018-10-05T21:24:02.289Z -- AR: obj 'length': function true Function
-// AR: about to get property descriptor 'length' of function []
-// => TypeError: Method bytesRead called on incompatible receiver #<Pipe>
-//if (obj === Pipe && name === 'length') continue;
-//x if (typeof obj === 'function' && name === 'length') console.log("AR: checking LENGTH");
-
-//console.log("AR: getting %s.%s (depth %d)", obj.name || typeof obj, name, depth, obj.constructor && obj.constructor.name);
-        var desc = Object.getOwnPropertyDescriptor(obj, name) || {};
-        // NOTE: buffer 'length', 'parent', 'offset' are readable, immutable, and get() as null properties -- ok to skip
-
-//x console.log("AR: got.");
-        var pflags = (keyMap[name] ? 'K' : 'P') + (desc ? encodePropertyFlags(desc) : '---');
+        // flags: K=keys, P=properties, E=error, B=builtin
+        var pflags = (keyMap[name] ? 'K' : 'P') + encodePropertyFlags(desc);
 
         if (desc.get || desc.set) {
             bak.props[name] = { pflags: pflags, value: null, get: desc.get, set: desc.set };
@@ -142,6 +137,7 @@ function backup( obj, alreadySeen, depth ) {
 
     return bak;
 
+
     function encodePropertyFlags( desc ) {
         return (desc.writable ? 'W' : '-') +
                (desc.enumerable ? 'E' : '-') +
@@ -149,113 +145,22 @@ function backup( obj, alreadySeen, depth ) {
     }
 
     function encodeObjectFlags( obj ) {
-        return (objectTest('isSealed', obj) ? 'S' : '-') +
-               (objectTest('isFrozen', obj) ? 'F' : '-') +
-               (objectTest('isExtensible', obj) ? 'X' : '-');
+        return (tryCall(Object, 'isSealed', obj) ? 'S' : '-') +         // seal()
+               (tryCall(Object, 'isFrozen', obj) ? 'F' : '-') +         // freeze()
+               (tryCall(Object, 'isExtensible', obj) ? 'X' : '-');      // preventExtensions()
     }
-
-    function tryCall( object, method, arg ) {
-        try { return object[method](arg) } catch (e) { return null }
-    }
-
-    function objectTest( testName, item ) {
-        try { return Object[testName](item) }
-        catch (e) { return false }
-    }
-
-/**
-    // native types and Symbols hold no properties (worse: "foo" has properties 0,1,2,length)
-    // error cannot redefine property: 0
-    if (obj == null || typeof obj !== 'object' && typeof obj !== 'function') return { name: '(const)', backup: obj, value: obj };
-
-    var value = typeof obj === 'object' ? backupValue(obj) : obj;
-    var bak = {
-        name: '(item)',
-        value: value,
-        magic: null,            // unique magic value that cannot be overwritten, eg process.env
-        backup: value,
-        props: new Array(),
-        // FIXME: isSealed(process.env) crashes in node-v0.10 with "Cannot call method 'isConfigurable' of undefined"
-        sealed: objectTest('isSealed', obj),
-        frozen: objectTest('isFrozen', obj),
-        extensible: objectTest('isExtensible', obj),
-    };
-
-    function objectTest( testName, item ) {
-        try { return Object[testName](item) }
-        catch (e) { return false }
-    }
-
-    alreadySeen.set(obj, bak);
-
-    // recursively back up properties
-    // getOwnPropertyNames omits Symbols (but get*Descriptors includes them)
-    if (true) {
-        var names = Object.getOwnPropertyNames(obj);
-        if (isArrayLike(obj)) {
-            while (names[0] >= 0) names.shift();
-            for (var i=0; i<names.length; i++) if (names[i] === 'length') names.splice(i, 1);
-        }
-//console.log("AR: names", names);
-        backupProperties(bak.props, obj, names, alreadySeen);
-    }
-    if (Object.getOwnPropertySymbols) {
-        // Symbol was not present in node-v0.10
-//        var names = Object.getOwnPropertySymbols(obj);
-//        backupProperties(bak.props, obj, names, alreadySeen);
-    }
-
-// FIXME: bound functions cannot be un-bound or bound to another object!
-// FIXME: a bound function will modify its original bound-to object, not the copy.
-// FIXME: how to detect a bound function?
-// FIXME: process.env is magic, and cannot be duplicated, but its props can be reset
-// FIXME: parts of console are magic (TTY and Pipe)
-
-// NOTE: it is 2x faster to get all property names then all descriptors than to getOwnPropertyDescriptors
-
-    // back up special properties too that do not show up in the list
-    if (typeof obj === 'object' || typeof obj === 'function') {
-        if (obj.__proto__ !== undefined) backupProperties(bak.props, obj, ['__proto__'], alreadySeen);
-        if (obj.constructor !== undefined) backupProperties(bak.props, obj, ['constructor'], alreadySeen);
-    }
-
-    function backupProperties( props, item, names, alreadySeen ) {
-        for (var i=0; i<names.length; i++) {
-            var name = names[i];
-            // cannot directly access properties 'caller', 'callee', 'arguments' in strict mode
-            // also, cannot directly access getters / setters
-            var prop = Object.getOwnPropertyDescriptor(item, name);
-            var value = prop ? prop.value : item[name];
-            // FIXME: TTY.bytesRead throws a TypeError when read, so cannot clone the object ??
-            // see https://github.com/nodejs/node/issues/17636 re exotic objects (eg process.stdin._handle.__proto__)
-//console.log("AR: backing up property %s", name, value);
-            if (!prop) prop = { value: value, enumerable: false, writable: true, configurable: true };
-            props.push({
-                // save all possible info, sort out getter vs value when restoring
-// FIXME: backup also contains name:, backup:, value:
-                name: name,             // name to be used by defineProperty
-                value: null,            // placeholder for defineProperty value
-                backup: backup(value, alreadySeen),
-                writable: prop.writable,
-                enumerable: prop.enumerable,
-                configurable: prop.configurable,
-            })
-            props[props.length - 1].backup.name = name;
-//if (prop.get) console.log("AR: backing up getter: ", name, prop, props.slice(-1));
-        }
-    }
-
-    return bak;
-**/
 }
 
+function tryCall( object, method, a1, a2, a3 ) {
+    try { return object[method](a1, a2, a3) } catch (e) { return null }
+}
+
+function getSymbols( object ) {
+    return tryCall(Object, 'getOwnPropertySymbols', object) || [];
+}
 
 function isSimpleValue( item ) {
-    return item === null || (typeof item !== 'object' && typeof item !== 'function');
-}
-
-function isHash( item ) {
-    return item && typeof item === 'object' && item.constructor === Object;
+    return item == null || (typeof item !== 'object' && typeof item !== 'function');
 }
 
 /*
@@ -263,12 +168,15 @@ function isHash( item ) {
  * properties indexed by integers.
  */
 function isArrayLike( item ) {
+    // must be an object
+    if (!item || typeof item.constructor !== 'function') return false;
+
     // some constructor prototypes eg Buffer themselves have a constructor, but are not instanceof
     // Trying to access getter properties eg buf.buffer of such prototypes break with an error
     //   node-v8:   "Method get %TypedArray%.prototype.buffer called on incompatible receiver [object Object]"
     //   node-v5.8: "Method Uint8Array.buffer called on incompatible receiver [object Object]"
     // See https://github.com/nodejs/node/issues/17636 re "exotic objects"
-    if (item && item.constructor && !(item instanceof item.constructor)) return false;
+    if (!(item instanceof item.constructor)) return false;
 
     if (item instanceof Buffer || item instanceof Array) return true;
     if (item instanceof Int8Array || item instanceof Int16Array || item instanceof Int32Array) return true;
@@ -286,15 +194,13 @@ function isArrayLike( item ) {
 function _getPropertyNames( obj ) {
     var names = Object.getOwnPropertyNames(obj);
 
-    if (Object.getOwnPropertySymbols) {
-        var symbols = Object.getOwnPropertySymbols(obj);
-        for (var i=0; i<symbols.length; i++) names.push(symbols[i]);
-    }
+    var symbols = getSymbols(obj);
+    for (var i=0; i<symbols.length; i++) names.push(symbols[i]);
 
     // __proto__ and constructor are special, they are not an own property and have no descriptor
     if (obj.__proto__ !== undefined && names.indexOf('__proto__') < 0) names.push('__proto__');
     if (obj.constructor !== undefined && names.indexOf('constructor') < 0) names.push('constructor');
-    if (obj.super_ !== undefined && names.indexOf('super_') < 0) names.push('super_');
+    // constructor.super_ is enumerable
 
     // Buffer length, offset, parent, v4+ buffer are special, have value but no descriptor, but are immutable (v4+, mutable v0.10-0.12)
     if (isArrayLike(obj)) {
@@ -311,17 +217,13 @@ function _getPropertyNames( obj ) {
  * duplicate the value, ignoring the properties, if any
  */
 var primitiveTypes = { number: 1, string: 1, boolean: 1, symbol: 1 };
-function backupValue( original ) {
-    // null and undefined can hold no properties
-    if (original == null) return original;
+function _backupValue( original ) {
     var copy;
 
-    // only objects and functions can hold properties
-    // Symbols do not retain properties
-    if (primitiveTypes[typeof original]) return original;
+    // null, undefined and primitive types retain no properties, objects and functions do
+    // if (isSimpleValue(original)) return original; // -- already screened before call
 
-    // functions are bound, cannot clone the closure
-    if (typeof original === 'function') return original;
+    // TODO: if the global constructor eg Array is reassigned, both Array and global.Array change!
 
     switch (original.constructor) {
     case Object:
@@ -350,15 +252,12 @@ function backupValue( original ) {
         copy.length = original.length;
 
         return copy;
-        break;
 
-    //case Function:
-    //    return original;        // functions are bound, cannot clone the closure
+    case Function:
+        return original;        // functions are bound, no way to clone the closure
 
-    case global.Symbol:
-        return original;        // symbols are all unique, cannot clone
-
-    // TODO: Promise, Proxy, Reflection
+    //case global.Symbol:         // symbols are simple values, all unique and cannot be cloned
+    //    return original;        // they cannot retain properties, but do have a constructor
 
     case Buffer:
     case global.ArrayBuffer:
@@ -378,10 +277,23 @@ function backupValue( original ) {
         }
         break;
 
-    case global.Map:
+    case global.Promise:
+    case global.Proxy:
+    case global.Reflection:
+        // FIXME: add support
+        // throw new Error('Promise, Proxy, Reflection not supported yet');
+        // support as a generic object
+        break;
+
     case global.WeakMap:
-    case global.Set:
     case global.WeakSet:
+        // FIXME: new WeakMap(new WeakMap) TypeError: undefined is not a function
+        // throw new Error('WeakMap not supported');
+        // support as a generic object
+        break;
+
+    case global.Map:
+    case global.Set:
     case global.Int8Array:
     case global.Int16Array:
     case global.Int32Array:
@@ -396,21 +308,21 @@ function backupValue( original ) {
         break;
     }
 
-    // finally, we know `original` is an object (isSimpleValue test above), and
-    // the details of other objects are captured by {} annotated with all properties
-    if (typeof original === 'object') return {};
+    // finally, the default is to back up the item as a generic object {}
+    // We know `original` is an object (isSimpleValue test above), and
+    // the details of objects are captured by {} annotated with all properties.
+    return {};
 
     // use the item constructor to build a copy of the item
     function constructDup(item) {
-        // duplicate literal string, number, boolean
-//console.log("AR: duplicate", typeof item, item);
-        if (typeof item !== 'object') return item.constructor(item);
+        // duplicate literal string, number, boolean -- note: cannot occur here
+        // if (typeof item !== 'object') return item.constructor(item);
 
         // duplicate objects with new
         // The constructor must know how to duplicate an instance of its class.
         // Exotic object prototypes eg Date {} or Buffer {} will not be instanceof.
-        if (item instanceof item.constructor) return new item.constructor(item);
-        else return {};
+        // return (item instanceof item.constructor) ? new item.constructor(item) : {};
+        return new item.constructor(item);
 
         // Date, RegExp, Map, Symbol etc prototypes are Date {}, etc exotic objects
         // distinguish by Dates are instanceof, prototypes are not
@@ -444,18 +356,22 @@ function compare( bak1, bak2, options, name, alreadySeen ) {
     if (bak1.oflags !== bak2.oflags) return _reject(name);
     if (bak1.pflags !== bak2.pflags) return _reject(name);
 
-    // the two hashes must have the same properties
+    // the two hashes must have the same properties and same symbols with same values
     if (bak1.props) {
         var keys1 = Object.keys(bak1.props);
-        var keys2 = Object.keys(bak2.props);
-        if (keys1.length !== keys2.length) return _reject(name);
-        for (var k in bak1.props) {
+        if (keys1.length !== Object.keys(bak2.props).length) return _reject(name);
+
+        var syms1 = getSymbols(bak1.props);
+        if (syms1.length !== getSymbols(bak2.props).length) return _reject(name);
+
+        var expectKeys = [].concat(keys1, syms1);
+        for (var i=0; i<expectKeys.length; i++) {
+            var k = expectKeys[i];
             if (!(k in bak2.props)) return _reject(name);
-            var propName = name + '.' + k;
-//console.log("AR: test", propName);
+            var propName = (typeof k === 'symbol') ? util.inspect(k) : name + '.' + k;
             // _stdout._writableState.pendingcb differs run to run, skip
             if (options.skip[propName]) continue;
-            if (!qdiff.compare(bak1.props[k], bak2.props[k], options, propName, alreadySeen)) return _reject(name + '.' + k);
+            if (!qdiff.compare(bak1.props[k], bak2.props[k], options, propName, alreadySeen)) return _reject(propName);
         }
     }
 
@@ -466,8 +382,8 @@ function compare( bak1, bak2, options, name, alreadySeen ) {
  * compare the two backed-up values, return true iff same
  */
 function compareValue( val1, val2, options, name, alreadySeen ) {
-    if (isSimpleValue(val1)) {
-        if (!isSimpleValue(val2)) return false;
+    if (isSimpleValue(val1) || isSimpleValue(val2)) {
+        if (!(isSimpleValue(val1) && isSimpleValue(val1))) return false;
         if (typeof val1 === 'number') return val1 === val2 || isNaN(val1) && isNaN(val2);
         return val1 === val2;
     }
@@ -476,17 +392,19 @@ function compareValue( val1, val2, options, name, alreadySeen ) {
 
     switch (val1.constructor) {
     // the only object we should get here are backups, compare them recursively
-    case Object:
-        return qdiff.compare(val1, val2, options, name, alreadySeen);
+    case Object: return qdiff.compare(val1, val2, options, name, alreadySeen);
 
-    // some objects have to be coerced to compare by value
+    // functions compare by value (eg bound functions; also not want equivalence proofs)
     case Function: return val1 === val2;
+
+    // some objects have to be coerced then compare by value
     case Number: return +val1 === +val2 || isNaN(val1) && isNaN(val2);
     case String: return String(val1) === String(val2);
     case Boolean: return Boolean(val1) === Boolean(val2);
     case RegExp: return String(val1) === String(val2);
     case Date: return +val1 === +val2;
-    case global.Symbol: return val1 === val2;
+    // symbols are handled as simple values, not here
+    // case global.Symbol: return val1 === val2;
 
     // array-like objects (Array, Buffer, Map, etc) compared property by property
     }
@@ -494,6 +412,7 @@ function compareValue( val1, val2, options, name, alreadySeen ) {
     return true;
 }
 
+/**
 // quicktest:
 
 var util = require('util');
@@ -514,9 +433,9 @@ var bak3;
 // assert.deepEqual(qdiff.backup(util), qdiff.backup(util)); //-- ok
 // assert.deepEqual(qdiff.backup(assert), qdiff.backup(assert)); //-- ok
 
-console.time('100 backups');
+console.time('100 backup(global)');
 for (var i=0; i<100; i++) bak = qdiff.backup(global);
-console.timeEnd('100 backups');
+console.timeEnd('100 backup(global)');
 // 650 ms for 100
 
 
