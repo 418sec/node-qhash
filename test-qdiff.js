@@ -171,7 +171,7 @@ module.exports = {
 
                 var allocUnsafe = Buffer.allocUnsafe;
                 delete Buffer.allocUnsafe;
-                var bak = qdiff.backup(new Buffer("abc"));
+                var bak = qdiff.backup(Buffer.from("abc"));
                 Buffer.allocUnsafe = allocUnsafe;
                 t.equal(bak.value.toString(), "abc");
                 t.done();
@@ -196,6 +196,13 @@ module.exports = {
                 Object.defineProperty(obj4, 'x', { get: getter });
                 t.ok(qdiff.compare(bak, qdiff.backup(obj4)));
 
+                t.done();
+            },
+
+            'should back up global': function(t) {
+                var bak1 = qdiff.backup(global);
+                var bak2 = qdiff.backup(global);
+                t.ok(qdiff.compare(bak1, bak2));
                 t.done();
             },
         },
