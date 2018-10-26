@@ -153,6 +153,7 @@ Options:
 Change Log
 ----------------
 
+- 1.3.0 - `qdiff.backup` and `qdiff.compare` functions
 - 1.2.0 - `mmerge`, `mapById` functions
 - 1.1.0 - `optimize` call to convert hash to struct
 - 1.0.2 - fix null deref in test
