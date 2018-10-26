@@ -125,6 +125,16 @@ new properties to a struct will convert it into a hash.
     qhash.optimize(obj);                // now a struct
 
 
+Change Log
+----------------
+
+- 1.2.0 - `mmerge`, `mapById` functions
+- 1.1.0 - `optimize` call to convert hash to struct
+- 1.0.2 - fix null deref in test
+- 1.0.1 - faster get/set for longer property names
+- 1.0.0 - initial fixed version, 2017-03-27
+
+
 Related Work
 ----------------------------------------------------------------
 
