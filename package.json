@@ -2,14 +2,14 @@
   "name": "qhash",
   "version": "1.3.0",
   "main": "qhash.js",
-  "description": "merge objects, get/set nested properties by dotted name, taint detect",
+  "description": "merge and deep-copy objects, get/set properties by dotted name, taint detect",
   "author": "andras@andrasq.com",
   "license": "Apache-2.0",
   "repository": "git://github.com/andrasq/node-qhash",
   "engines": {
     "node": ">=0.10"
   },
-  "keywords": [ "merge", "extend", "assign", "get", "set", "backup", "compare", "diff", "taint" ],
+  "keywords": [ "merge", "extend", "assign", "get", "set", "deep-copy", "backup", "compare", "diff", "taint" ],
 
   "dependencies": {
   },
