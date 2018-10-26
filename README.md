@@ -1,13 +1,12 @@
 qhash
 ================================================================
-
 [![Build Status](https://travis-ci.org/andrasq/node-qhash.svg?branch=master)](https://travis-ci.org/andrasq/node-qhash)
 [![Coverage Status](https://codecov.io/github/andrasq/node-qhash/coverage.svg?branch=master)](https://codecov.io/github/andrasq/node-qhash?branch=master)
 
 Hash and object manipulation
 
 
-Api
+qhash Api
 ----------------------------------------------------------------
 
 ### qhash.merge( [target,] source [,noOverwrite] )
@@ -123,6 +122,31 @@ new properties to a struct will convert it into a hash.
     obj.a = 1;
     obj.b = 2;
     qhash.optimize(obj);                // now a struct
+
+
+qdiff Api
+----------------------------------------------------------------
+
+    const qdiff = require('qhash/qdiff');
+
+### qdiff.backup( item )
+
+Compute a backup object that captures all details of `item`.  Any modifications made
+to item or any of its properties (ie objects reachable from the item), including
+property or object attributes, will be reflected in a subsequent backup.
+
+### qdiff.compare( backup1, backup2, [options] )
+
+Compare the two backups and return `true` if they are the same, `false` if they are not.
+This comparison detects added/deleted/changed properties, as well as changes to property
+attributes (writable, enumerable, configurable) or object state (sealed, frozen, extensible).
+
+Options:
+
+- `name` - the top-level object name to use, else the default is `'x'`
+- `skip` - object whose properties are names of properties to not compare.  The names
+  are in hierchical dotted names format, eg `{ skip: { 'x.a.b': 1 } }` meaning ignore
+  differences in property a.b of `{ a: { b: 1 } }` and `{ a: { b: 2 } }`.
 
 
 Change Log
