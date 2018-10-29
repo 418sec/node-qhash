@@ -20,7 +20,7 @@
 
   "scripts": {
     "test": "qnit test-q*",
-    "coverage": "nyc --reporter text --reporter lcov npm test",
+    "coverage": "env NODE_NYC=1 nyc --reporter text --reporter lcov npm test",
     "clean": "rm -rf .nyc_output coverage out"
   }
 }

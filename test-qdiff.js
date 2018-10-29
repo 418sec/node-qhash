@@ -200,6 +200,7 @@ module.exports = {
             },
 
             'should back up global': function(t) {
+                if (process.env.NODE_NYC === '1') t.skip();
                 var bak1 = qdiff.backup(global);
                 var bak2 = qdiff.backup(global);
                 t.ok(qdiff.compare(bak1, bak2));
