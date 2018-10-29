@@ -112,6 +112,7 @@ function backup( obj, alreadySeen, depth ) {
         if (desc === null) {
             // some exotic prototype objects cannot run getters without an instance,
             // work around the TypeError: Method bytesRead called on incompatible receiver #<Pipe>
+            // Happens in node-v8.11.1 with Pipe for fd, bytesRead.
             bak.props[name] = { pflags: 'E---', value: '<cannot get descriptor>' };
             continue;
         }
