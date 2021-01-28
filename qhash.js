@@ -87,7 +87,7 @@ module.exports = {
         var path = dottedPath.split('.');
         for (var item=target, i=0; i<path.length-1; i++) {
             var field = path[i];
-            if (!item[field] || typeof item[field] !== 'object') item[field] = {};
+            if (!item[field] || typeof item[field] !== 'object' || isPrototypePolluted(field)) item[field] = {};
             item = item[field];
         }
         return item[path[path.length-1]] = value;
@@ -178,4 +178,9 @@ function indexOfCharCode( str, ch ) {
 // a hash object is not instanceof any class
 function isHash(o) {
     return o && typeof o === 'object' && o.constructor == Object;
+}
+
+// Blacklist certain keys to prevent Prototype Pollution
+function isPrototypePolluted(key) {
+    return ['__proto__', 'constructor', 'prototype'].includes(key);
 }
