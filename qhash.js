@@ -41,6 +41,8 @@ module.exports = {
         if (typeof source !== 'object') return merge(this, target, source);
 
         for (var key in source) {
+            disallowProtoPath(key)
+
             if (noOverwrite && (key in target)) {
                 if (isHash(target[key]) && isHash(source[key])) {
                     target[key] = merge(target[key], source[key], true);
