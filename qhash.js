@@ -7,6 +7,25 @@
 
 'use strict';
 
+var ILLEGAL_KEYS = new Set(['constructor', 'prototype', '__proto__']);
+
+function isIllegalKey(key) {
+  return ILLEGAL_KEYS.has(key);
+}
+
+function isProtoPath(path) {
+  return Array.isArray(path) 
+    ? path.some(isIllegalKey) 
+    : typeof path === "string" 
+      ? isIllegalKey(path)
+      : false;   
+}
+
+function disallowProtoPath(path) {
+  if (isProtoPath(path)) {
+    throw new Error("Unsafe path encountered: " + path)
+  }
+}
 
 module.exports = {
     /*
@@ -87,6 +106,7 @@ module.exports = {
         var path = dottedPath.split('.');
         for (var item=target, i=0; i<path.length-1; i++) {
             var field = path[i];
+            disallowProtoPath(field);
             if (!item[field] || typeof item[field] !== 'object') item[field] = {};
             item = item[field];
         }
