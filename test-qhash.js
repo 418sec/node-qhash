@@ -86,6 +86,12 @@ describe ('qhash', function() {
             done();
         })
 
+        it('should throw when trying to overwrite prototype methods', function (done) {
+          var target = {};
+          assert.throws(() => merge(target, JSON.parse('{"__proto__": { "polluted": true }}')));
+          done();
+        })
+
         describe ('options', function() {
             it ('noOverwrite should not alter existing properties', function(done) {
                 var target = qhash.merge({a:1, b:2}, {b:3, c:4}, true);
@@ -132,6 +138,12 @@ describe ('qhash', function() {
             assert.deepEqual(target, {a:{s:3}, b:{s:2}});
 
             done();
+        })
+
+        it('should throw when trying to overwrite prototype methods', function (done) {
+          var target = {};
+          assert.throws(() => mmerge(target, JSON.parse('{"__proto__": { "polluted": true }}')));
+          done();
         })
     })
 
@@ -204,7 +216,7 @@ describe ('qhash', function() {
                 [ {}, 'b', [1], {b:[1]} ],
                 [ {a:1}, 'b', 2, {a:1, b:2} ],
                 [ {b:1}, 'a', 2, {b:1, a:2} ],
-                [ {a:[]}, 'a.0', 1, {a:{'0':1}} ],
+                [ {a:{}}, 'a.0', 1, {a:{'0':1}} ],
                 [ {a:[]}, 'a.0', 1, {a:[1]} ],          // TODO: is object, not array!
             ];
             testSetDataset(dataset);
@@ -257,6 +269,12 @@ describe ('qhash', function() {
             target.set('a.b', 3);
             assert.deepEqual(target.a, {b:3});
             done();
+        })
+
+        it('should throw when trying to overwrite prototype methods', function (done) {
+          var target = {};
+          assert.throws(() => set(target, '__proto__.polluted', true));
+          done();
         })
     })
 
